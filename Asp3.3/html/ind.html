@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Логин</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ADD8E6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            background: #008000;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+            button:hover {
+                background: #0056b3;
+            }
+
+        #message {
+            margin-top: 15px;
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Форма пользователя</h2>
+        <div id="message"></div>
+        <input name="userName" id="userName" placeholder="Введите имя" />
+        <input name="userAge" id="userAge" type="number" min="0" max="100" placeholder="Введите возраст" />
+        <button id="sendBtn">Отправить</button>
+    </div>
+
+    <script>
+        document.getElementById("sendBtn").addEventListener("click", send);
+
+        async function send() {
+            const name = document.getElementById("userName").value.trim();
+            const ageInput = document.getElementById("userAge");
+            const age = parseInt(ageInput.value, 10);
+            const nameRegex = /^[a-zA-Zа-яА-ЯёЁ]+$/;
+
+            const messageElement = document.getElementById("message");
+            messageElement.innerText = "";
+
+            if (!name) {
+                messageElement.innerText = "Введите имя!";
+                return;
+            }
+            if (!nameRegex.test(name)) {
+                messageElement.innerText = "Имя должно содержать только буквы!";
+                return;
+            }
+            if (isNaN(age) || age < 0 || age > 100) {
+                messageElement.innerText = "Возраст должен быть в диапазоне 0-100!";
+                return;
+            }
+
+            const response = await fetch("/api/user", {
+                method: "POST",
+                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                body: JSON.stringify({ name, age })
+            });
+
+            const message = await response.json();
+            messageElement.innerText = message.text;
+        }
+    </script>
+</body>
+</html>
